@@ -31,8 +31,14 @@ a:visited {
 .main-content {
     max-width: 680px;
     margin: 3em auto;
-    padding: 0 2em;
+    padding: 0 1em;
     text-align: center;
+}
+
+@media (min-width: 640px) {
+    .main-content {
+        padding: 0 2em;
+    }
 }
 
 .external-links {
