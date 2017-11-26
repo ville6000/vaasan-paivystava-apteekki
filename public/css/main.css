@@ -1,0 +1,23 @@
+body {
+    background-color: #f5f5f5;
+    color: #444;
+    font-family: 'Lora', serif;
+    font-size: 18px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: 700;
+}
+
+.main-content {
+    max-width: 680px;
+    margin: 3em auto;
+    padding: 0 2em;
+    text-align: center;
+}
