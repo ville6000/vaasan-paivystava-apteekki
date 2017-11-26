@@ -17,5 +17,10 @@
     @yield('content')
 </main>
 
+<script>
+    window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;
+    ga('create', '<?php echo env('ANALYTICS'); ?>','auto');ga('send','pageview')
+</script>
+<script src="https://www.google-analytics.com/analytics.js" async defer></script>
 </body>
 </html>
