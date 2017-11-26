@@ -11,18 +11,16 @@ class Drugstore
     {
         $drugStores  = $this->getDrugStoreArray();
         $currentDate = new \DateTime();
+        $currentDate = $currentDate->format('U');
 
         foreach ($drugStores as $drugStore) {
             foreach ($drugStore['dates'] as $dateString) {
                 $datePieces = $this->splitDateString($dateString);
+                $weekStart  = $this->createDateTime($datePieces[0]);
+                $weekEnd    = $this->createDateTime($datePieces[1]);
 
-                if (isset($datePieces[0]) && isset($datePieces[1])) {
-                    $weekStart = $this->createDateTime($datePieces[0]);
-                    $weekEnd   = $this->createDateTime($datePieces[1]);
-
-                    if ($weekStart >= $currentDate && $weekEnd <= $currentDate) {
-                        return $drugStore['name'];
-                    }
+                if ($currentDate >= $weekStart->format('U') && $currentDate <= $weekEnd->format('U')) {
+                    return $drugStore['name'];
                 }
             }
         }
@@ -32,8 +30,10 @@ class Drugstore
 
     private function splitDateString($dateString)
     {
-        $dateString = str_replace(chr(151), '-', $dateString);
+        $dateString = str_replace(chr(149), '-', $dateString);
         $dateString = str_replace(chr(150), '-', $dateString);
+        $dateString = str_replace(chr(151), '-', $dateString);
+        $dateString = str_replace('–', '-', $dateString);
 
         return explode('-', $dateString);
     }
