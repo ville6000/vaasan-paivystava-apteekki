@@ -53,7 +53,7 @@ class Drugstore
 
     private function getDrugStoreArray()
     {
-        $document = file_get_contents('https://www.vaasa.fi/paivystavat-apteekit');
+        $document = file_get_contents(env('DRUGSTORE_ON_CALL_SOURCE'));
         $crawler  = new Crawler($document);
         $crawler  = $crawler->filter('body .Table tr');
 
