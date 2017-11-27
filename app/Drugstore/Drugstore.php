@@ -40,12 +40,12 @@ class Drugstore
 
     private function createDateTime($date)
     {
-        $date = trim($date);
+        $date = rtrim(trim($date), '.');
 
         if (strlen($date) === 8) {
             $dateTime = \DateTime::createFromFormat('j.n.Y', $date);
         } else {
-            $dateTime = \DateTime::createFromFormat('j.n.', $date);
+            $dateTime = \DateTime::createFromFormat('j.n', $date);
         }
 
         return $dateTime;
