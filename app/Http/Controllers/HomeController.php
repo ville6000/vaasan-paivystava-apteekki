@@ -11,8 +11,13 @@ class HomeController extends Controller
         $drugStore = new Drugstore();
         $storeName = $drugStore->getOnCallDrugstore();
 
+        $monday = date('d.m', strtotime('monday this week'));
+        $sunday = date('d.m', strtotime('sunday this week'));
+
         return view('home.index', [
-            'storeName' => $storeName
+            'storeName' => $storeName,
+            'monday'    => $monday,
+            'sunday'    => $sunday,
         ]);
     }
 }

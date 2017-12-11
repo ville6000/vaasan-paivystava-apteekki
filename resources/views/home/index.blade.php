@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('content')
-    <p>Tällä viikolla Vaasan päivystävä apteekki on:</p>
+    <p>{{ $monday }} - {{ $sunday }} Vaasan päivystävä apteekki on:</p>
     <h1>{{ $storeName }}</h1>
 
     <p class="external-links">
