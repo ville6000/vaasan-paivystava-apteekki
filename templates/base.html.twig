@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fi">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}Vaasan päivystävä apteekki{% endblock %}</title>
+    <meta name="description" content="Vaasan päivystävä apteekki">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,700|Ubuntu:700" rel="stylesheet">
+    {% block stylesheets %}{% endblock %}
+    <link rel="stylesheet" href="{{ asset('css/normalize.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/main.css') }}" />
+</head>
+<body>
+
+<main class="main-content">
+    {% block body %}{% endblock %}
+</main>
+
+<script>
+    window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;
+    ga('create', '{{ ga_tracking }}','auto');ga('send','pageview')
+</script>
+<script src="https://www.google-analytics.com/analytics.js" async defer></script>
+</body>
+</html>
