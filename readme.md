@@ -1,1 +1,0 @@
-# Vaasan päivystävä apteekki

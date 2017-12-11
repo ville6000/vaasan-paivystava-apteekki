@@ -1,5 +1,11 @@
-/vendor
-/.idea
-Homestead.json
-Homestead.yaml
+
+###> symfony/framework-bundle ###
 .env
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/web-server-bundle ###
+.web-server-pid
+###< symfony/web-server-bundle ###
