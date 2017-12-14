@@ -4,13 +4,24 @@ namespace App\Controller;
 
 use App\DrugStore\DrugStore;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Cache\Simple\FilesystemCache;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        $drugStore = new Drugstore();
-        $storeName = $drugStore->getOnCallDrugstore();
+        $cache = new FilesystemCache();
+        $cacheKey = 'drugstore-name';
+
+        if (!$cache->has($cacheKey)) {
+            $drugStore = new Drugstore();
+            $storeName = $drugStore->getOnCallDrugstore();
+
+            $cache->set($cacheKey, $storeName, 60 * 60);
+        } else {
+            $storeName = $cache->get($cacheKey);
+        }
+
         $monday = date('d.m', strtotime('monday this week'));
         $sunday = date('d.m', strtotime('sunday this week'));
 
