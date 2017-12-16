@@ -9,15 +9,15 @@ class Drugstore
 
     public function getOnCallDrugstore()
     {
-        $drugStores  = $this->getDrugStoreArray();
+        $drugStores = $this->getDrugStoreArray();
         $currentDate = new \DateTime();
         $currentDate = $currentDate->format('U');
 
         foreach ($drugStores as $drugStore) {
             foreach ($drugStore['dates'] as $dateString) {
                 $datePieces = $this->splitDateString($dateString);
-                $weekStart  = $this->createDateTime($datePieces[0]);
-                $weekEnd    = $this->createDateTime($datePieces[1]);
+                $weekStart = $this->createDateTime($datePieces[0]);
+                $weekEnd = $this->createDateTime($datePieces[1]);
 
                 if ($currentDate >= $weekStart->format('U') && $currentDate <= $weekEnd->format('U')) {
                     return $drugStore['name'];
@@ -53,9 +53,16 @@ class Drugstore
 
     private function getDrugStoreArray()
     {
-        $document = file_get_contents(env('DRUGSTORE_ON_CALL_SOURCE'));
-        $crawler  = new Crawler($document);
-        $crawler  = $crawler->filter('body .Table tr');
+        $contextOptions = array(
+            "ssl" => array(
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ),
+        );
+
+        $document = file_get_contents(env('DRUGSTORE_ON_CALL_SOURCE'), false, stream_context_create($contextOptions));
+        $crawler = new Crawler($document);
+        $crawler = $crawler->filter('body .Table tr');
 
         $drugStores = [];
         foreach ($crawler as $domElement) {
@@ -63,9 +70,9 @@ class Drugstore
 
             $cellIdx = 0;
             foreach ($rowCrawler->filter('td') as $cell) {
-                if ( ! isset($drugStores[$cellIdx])) {
+                if (!isset($drugStores[$cellIdx])) {
                     $drugStores[$cellIdx] = [
-                        'name'  => $cell->nodeValue,
+                        'name' => $cell->nodeValue,
                         'dates' => [],
                     ];
                 } else {
