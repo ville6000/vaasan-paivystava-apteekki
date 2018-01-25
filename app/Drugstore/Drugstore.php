@@ -19,6 +19,10 @@ class Drugstore
                 $weekStart = $this->createDateTime($datePieces[0]);
                 $weekEnd = $this->createDateTime($datePieces[1]);
 
+                if (!$weekEnd || !$weekStart) {
+                    return false;
+                }
+
                 if ($currentDate >= $weekStart->format('U') && $currentDate <= $weekEnd->format('U')) {
                     return $drugStore['name'];
                 }
@@ -40,7 +44,8 @@ class Drugstore
 
     private function createDateTime($date)
     {
-        $date = rtrim(trim($date), '.');
+        $date = trim(html_entity_decode($date), " \t\n\r\0\x0B\xC2\xA0");
+        $date = rtrim($date, '.');
 
         if (strlen($date) === 8) {
             $dateTime = \DateTime::createFromFormat('j.n.Y', $date);
