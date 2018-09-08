@@ -7,87 +7,103 @@ use Symfony\Component\DomCrawler\Crawler;
 class Drugstore
 {
 
-    public function getOnCallDrugstore()
-    {
-        $drugStores = $this->getDrugStoreArray();
-        $currentDate = new \DateTime();
-        $currentDate = $currentDate->format('U');
+	public function getOnCallDrugstore()
+	{
+		$drugStores = $this->getDrugStoreArray();
+		$currentDate = new \DateTime();
+		$currentDate = $currentDate->format('U');
 
-        foreach ($drugStores as $drugStore) {
-            foreach ($drugStore['dates'] as $dateString) {
-                $datePieces = $this->splitDateString($dateString);
-                $weekStart = $this->createDateTime($datePieces[0]);
-                $weekEnd = $this->createDateTime($datePieces[1]);
+		foreach ($drugStores as $name => $drugStore) {
+			foreach ($drugStore['dates'] as $dates) {
+				$weekStart = $this->createDateTime($dates['start']);
+				$weekEnd = $this->createDateTime($dates['end']);
 
-                if (!$weekEnd || !$weekStart) {
-                    return false;
-                }
+				if (!$weekEnd || !$weekStart) {
+					return false;
+				}
 
-                if ($currentDate >= $weekStart->format('U') && $currentDate <= $weekEnd->format('U')) {
-                    return $drugStore['name'];
-                }
-            }
-        }
+				if ($currentDate >= $weekStart->format('U') && $currentDate <= $weekEnd->format('U')) {
+					return $name;
+				}
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    private function splitDateString($dateString)
-    {
-        $dateString = str_replace(chr(149), '-', $dateString);
-        $dateString = str_replace(chr(150), '-', $dateString);
-        $dateString = str_replace(chr(151), '-', $dateString);
-        $dateString = str_replace('–', '-', $dateString);
+	private function createDateTime($date)
+	{
+		$date = trim(html_entity_decode($date), " \t\n\r\0\x0B\xC2\xA0");
+		$date = rtrim($date, '.');
 
-        return explode('-', $dateString);
-    }
+		if (strlen($date) === 8) {
+			$dateTime = \DateTime::createFromFormat('j.n.Y', $date);
+		} else {
+			$dateTime = \DateTime::createFromFormat('j.n', $date);
+		}
 
-    private function createDateTime($date)
-    {
-        $date = trim(html_entity_decode($date), " \t\n\r\0\x0B\xC2\xA0");
-        $date = rtrim($date, '.');
+		return $dateTime;
+	}
 
-        if (strlen($date) === 8) {
-            $dateTime = \DateTime::createFromFormat('j.n.Y', $date);
-        } else {
-            $dateTime = \DateTime::createFromFormat('j.n', $date);
-        }
+	private function getDrugStoreArray()
+	{
+		$contextOptions = array(
+			"ssl" => array(
+				"verify_peer" => false,
+				"verify_peer_name" => false,
+			),
+		);
 
-        return $dateTime;
-    }
+		$document = file_get_contents(env('DRUGSTORE_ON_CALL_SOURCE'), false, stream_context_create($contextOptions));
+		$crawler = new Crawler($document);
+		$crawler = $crawler->filter('body .field-type-text-with-summary p');
 
-    private function getDrugStoreArray()
-    {
-        $contextOptions = array(
-            "ssl" => array(
-                "verify_peer" => false,
-                "verify_peer_name" => false,
-            ),
-        );
+		$drugStores = [];
+		foreach ($crawler as $domElement) {
+			if (!$this->isValidParagraph($domElement->nodeValue)) {
+				continue;
+			}
 
-        $document = file_get_contents(env('DRUGSTORE_ON_CALL_SOURCE'), false, stream_context_create($contextOptions));
-        $crawler = new Crawler($document);
-        $crawler = $crawler->filter('body .Table tr');
+			foreach (explode("\n", $domElement->nodeValue) as $row) {
+				$row = trim($row);
+				$parts = explode(" ", $row);
 
-        $drugStores = [];
-        foreach ($crawler as $domElement) {
-            $rowCrawler = new Crawler($domElement);
+				if (count($parts) === 5) {
+					$parts[3] = $parts[3] . " " . $parts[4];
+					unset($parts[4]);
+				}
 
-            $cellIdx = 0;
-            foreach ($rowCrawler->filter('td') as $cell) {
-                if (!isset($drugStores[$cellIdx])) {
-                    $drugStores[$cellIdx] = [
-                        'name' => $cell->nodeValue,
-                        'dates' => [],
-                    ];
-                } else {
-                    $drugStores[$cellIdx]['dates'][] = $cell->nodeValue;
-                }
+				$name = $parts[3];
 
-                $cellIdx++;
-            }
-        }
+				if (!isset($drugStores[$name])) {
+					$drugStores[$name] = [
+						'dates' => [],
+					];
+				}
 
-        return $drugStores;
-    }
+				$drugStores[$name]['dates'][] = [
+					'start' => $parts[0],
+					'end' => $parts[2],
+				];
+			}
+		}
+
+		return $drugStores;
+	}
+
+	public function isValidParagraph($text)
+	{
+		$text = trim($text);
+		$firstDay = substr($text, 0, strpos($text, "."));
+
+		if (strlen($firstDay) > 2) {
+			return false;
+		}
+
+		if (!is_numeric($firstDay)) {
+			return false;
+		}
+
+		return true;
+	}
 }
